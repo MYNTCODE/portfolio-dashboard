@@ -1,4 +1,4 @@
-import SectionCard from './SectionCard.jsx';
+import SectionCard from '../common/SectionCard.jsx';
 
 export default function StockUniverseSection({ stockLibrary, enabledStocks, onToggleStock }) {
   return (

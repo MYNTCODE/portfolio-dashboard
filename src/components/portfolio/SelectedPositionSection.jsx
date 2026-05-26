@@ -1,4 +1,4 @@
-import SectionCard from './SectionCard.jsx';
+import SectionCard from '../common/SectionCard.jsx';
 
 function SelectedPositionCard({ selected }) {
   return (

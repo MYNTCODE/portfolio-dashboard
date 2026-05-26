@@ -1,5 +1,5 @@
-import { formatCurrency } from '../utils/formatters.js';
-import SummaryCard from './SummaryCard.jsx';
+import SummaryCard from '../common/SummaryCard.jsx';
+import { formatCurrency } from '../../utils/formatters.js';
 
 export default function ProjectionSummary({ totalInvested, projectedValue, projectedGain }) {
   return (

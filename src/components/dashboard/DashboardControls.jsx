@@ -1,7 +1,7 @@
-import { CONTROL_CONFIG } from '../constants/portfolio.js';
-import { formatCurrency } from '../utils/formatters.js';
-import ControlCard from './ControlCard.jsx';
-import SummaryCard from './SummaryCard.jsx';
+import { CONTROL_CONFIG } from '../../constants/portfolio.js';
+import { formatCurrency } from '../../utils/formatters.js';
+import SummaryCard from '../common/SummaryCard.jsx';
+import ControlCard from '../controls/ControlCard.jsx';
 
 export default function DashboardControls({
   monthlyBudget,
