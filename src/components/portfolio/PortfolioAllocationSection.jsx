@@ -1,6 +1,6 @@
-import { formatCurrency } from '../utils/formatters.js';
-import MetricCard from './MetricCard.jsx';
-import SectionCard from './SectionCard.jsx';
+import MetricCard from '../common/MetricCard.jsx';
+import SectionCard from '../common/SectionCard.jsx';
+import { formatCurrency } from '../../utils/formatters.js';
 
 function AllocationBar({ portfolio, selectedStock, onSelectStock }) {
   return (

@@ -1,10 +1,10 @@
-import AllocationControlsSection from '../components/AllocationControlsSection.jsx';
-import DashboardControls from '../components/DashboardControls.jsx';
-import HeroSection from '../components/HeroSection.jsx';
-import PortfolioAllocationSection from '../components/PortfolioAllocationSection.jsx';
-import ProjectionSummary from '../components/ProjectionSummary.jsx';
-import SelectedPositionSection from '../components/SelectedPositionSection.jsx';
-import StockUniverseSection from '../components/StockUniverseSection.jsx';
+import DashboardControls from '../components/dashboard/DashboardControls.jsx';
+import HeroSection from '../components/dashboard/HeroSection.jsx';
+import AllocationControlsSection from '../components/portfolio/AllocationControlsSection.jsx';
+import PortfolioAllocationSection from '../components/portfolio/PortfolioAllocationSection.jsx';
+import ProjectionSummary from '../components/portfolio/ProjectionSummary.jsx';
+import SelectedPositionSection from '../components/portfolio/SelectedPositionSection.jsx';
+import StockUniverseSection from '../components/portfolio/StockUniverseSection.jsx';
 import { STOCK_LIBRARY } from '../data/stockLibrary.js';
 import { usePortfolioDashboard } from '../hooks/usePortfolioDashboard.js';
 

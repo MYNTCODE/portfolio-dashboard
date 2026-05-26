@@ -1,5 +1,5 @@
-import { CONTROL_CONFIG } from '../constants/portfolio.js';
-import SectionCard from './SectionCard.jsx';
+import SectionCard from '../common/SectionCard.jsx';
+import { CONTROL_CONFIG } from '../../constants/portfolio.js';
 
 function AllocationControlRow({
   item,

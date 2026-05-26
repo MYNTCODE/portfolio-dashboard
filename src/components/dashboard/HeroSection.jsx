@@ -1,4 +1,4 @@
-import { formatCurrency } from '../utils/formatters.js';
+import { formatCurrency } from '../../utils/formatters.js';
 
 export default function HeroSection({ totalInvested }) {
   return (
