@@ -11,67 +11,119 @@ const portfolioFont = `
   }
 `;
 
+const STOCK_LIBRARY = [
+  {
+    name: 'VOO',
+    description: 'Core ETF / U.S. Market',
+    thesis:
+      'The core of the portfolio. It helps reduce single-stock risk and gives broad exposure to large U.S. companies in the S&P 500.',
+    gradient: 'from-sky-400 to-blue-600',
+    defaultAllocation: 50,
+    defaultGrowth: 9,
+  },
+  {
+    name: 'NVDA',
+    description: 'AI Leader / GPU',
+    thesis:
+      'A leading AI infrastructure company. It has strong growth potential, but it can be volatile, so it works best as a growth satellite position.',
+    gradient: 'from-emerald-400 to-green-600',
+    defaultAllocation: 25,
+    defaultGrowth: 22,
+  },
+  {
+    name: 'MU',
+    description: 'HBM / AI Memory',
+    thesis:
+      'A memory-focused semiconductor stock that may benefit from AI server demand and HBM growth, but it can move strongly with the memory cycle.',
+    gradient: 'from-violet-400 to-purple-600',
+    defaultAllocation: 15,
+    defaultGrowth: 15,
+  },
+  {
+    name: 'MRVL',
+    description: 'AI Networking',
+    thesis:
+      'A supporting AI infrastructure position focused on networking and custom silicon. It adds upside, but carries higher risk than the core position.',
+    gradient: 'from-amber-400 to-orange-600',
+    defaultAllocation: 10,
+    defaultGrowth: 18,
+  },
+  {
+    name: 'GOOGL',
+    description: 'AI / Search / Cloud',
+    thesis:
+      'A large-cap technology company with exposure to AI, search, cloud, YouTube, and digital advertising. It can balance growth with a stronger business base.',
+    gradient: 'from-blue-400 to-cyan-600',
+    defaultAllocation: 10,
+    defaultGrowth: 12,
+  },
+  {
+    name: 'LLY',
+    description: 'Healthcare / Pharma Growth',
+    thesis:
+      'A healthcare growth position. It adds sector diversification away from technology and semiconductors.',
+    gradient: 'from-rose-400 to-pink-600',
+    defaultAllocation: 10,
+    defaultGrowth: 12,
+  },
+  {
+    name: 'O',
+    description: 'Monthly Dividend REIT',
+    thesis:
+      'A dividend-focused REIT. It can add monthly income, but may grow slower than technology-heavy positions.',
+    gradient: 'from-teal-400 to-emerald-700',
+    defaultAllocation: 10,
+    defaultGrowth: 6,
+  },
+  {
+    name: 'BRK.B',
+    description: 'Quality / Value Compounder',
+    thesis:
+      'A quality/value compounder that can help stabilize the portfolio and reduce dependence on high-growth technology names.',
+    gradient: 'from-zinc-300 to-zinc-600',
+    defaultAllocation: 10,
+    defaultGrowth: 9,
+  },
+];
+
 export default function PortfolioVisualization() {
   const [monthlyBudget, setMonthlyBudget] = useState(4000);
   const [years, setYears] = useState(10);
-  const [annualReturn, setAnnualReturn] = useState(8);
   const [selectedStock, setSelectedStock] = useState('VOO');
+  const [enabledStocks, setEnabledStocks] = useState(['VOO', 'NVDA', 'MU', 'MRVL']);
   const [allocations, setAllocations] = useState({
     VOO: 50,
     NVDA: 25,
     MU: 15,
     MRVL: 10,
+    GOOGL: 0,
+    LLY: 0,
+    O: 0,
+    'BRK.B': 0,
   });
-
   const [growthRates, setGrowthRates] = useState({
     VOO: 9,
     NVDA: 22,
     MU: 15,
     MRVL: 18,
+    GOOGL: 12,
+    LLY: 12,
+    O: 6,
+    'BRK.B': 9,
   });
 
-  const basePortfolio = [
-    {
-      name: 'VOO',
-      description: 'Core ETF / U.S. Market',
-      thesis:
-        'The core of the portfolio. It helps reduce single-stock risk and gives broad exposure to large U.S. companies in the S&P 500.',
-      gradient: 'from-sky-400 to-blue-600',
-    },
-    {
-      name: 'NVDA',
-      description: 'AI Leader / GPU',
-      thesis:
-        'A leading AI infrastructure company. It has strong growth potential, but it can be volatile, so it works best as a growth satellite position.',
-      gradient: 'from-emerald-400 to-green-600',
-    },
-    {
-      name: 'MU',
-      description: 'HBM / AI Memory',
-      thesis:
-        'A memory-focused semiconductor stock that may benefit from AI server demand and HBM growth, but it can move strongly with the memory cycle.',
-      gradient: 'from-violet-400 to-purple-600',
-    },
-    {
-      name: 'MRVL',
-      description: 'AI Networking',
-      thesis:
-        'A supporting AI infrastructure position focused on networking and custom silicon. It adds upside, but carries higher risk than the core position.',
-      gradient: 'from-amber-400 to-orange-600',
-    },
-  ];
-
-  const totalAllocation = useMemo(
-    () => Object.values(allocations).reduce((sum, value) => sum + value, 0),
-    [allocations],
-  );
-
   const portfolio = useMemo(() => {
-    return basePortfolio.map((item) => ({
+    return STOCK_LIBRARY.filter((item) => enabledStocks.includes(item.name)).map((item) => ({
       ...item,
       percent: allocations[item.name] ?? 0,
+      growth: growthRates[item.name] ?? 0,
     }));
-  }, [allocations]);
+  }, [enabledStocks, allocations, growthRates]);
+
+  const totalAllocation = useMemo(
+    () => portfolio.reduce((sum, item) => sum + item.percent, 0),
+    [portfolio],
+  );
 
   const selected = portfolio.find((item) => item.name === selectedStock) ?? portfolio[0];
 
@@ -89,10 +141,9 @@ export default function PortfolioVisualization() {
   const weightedAnnualGrowth = useMemo(() => {
     return portfolio.reduce((sum, item) => {
       const allocationWeight = item.percent / 100;
-      const growth = growthRates[item.name] ?? 0;
-      return sum + allocationWeight * growth;
+      return sum + allocationWeight * item.growth;
     }, 0);
-  }, [portfolio, growthRates]);
+  }, [portfolio]);
 
   const projectedValue = useMemo(() => {
     const monthlyRate = weightedAnnualGrowth / 100 / 12;
@@ -116,13 +167,13 @@ export default function PortfolioVisualization() {
   };
 
   const normalizeAllocations = () => {
-    if (totalAllocation === 0) return;
+    if (portfolio.length === 0 || totalAllocation === 0) return;
 
-    const normalized = {};
+    const normalized = { ...allocations };
     let runningTotal = 0;
 
-    basePortfolio.forEach((item, index) => {
-      if (index === basePortfolio.length - 1) {
+    portfolio.forEach((item, index) => {
+      if (index === portfolio.length - 1) {
         normalized[item.name] = Math.max(0, 100 - runningTotal);
       } else {
         const value = Math.round(((allocations[item.name] ?? 0) / totalAllocation) * 100);
@@ -135,7 +186,50 @@ export default function PortfolioVisualization() {
   };
 
   const resetAllocations = () => {
-    setAllocations({ VOO: 50, NVDA: 25, MU: 15, MRVL: 10 });
+    const next = {};
+    STOCK_LIBRARY.forEach((item) => {
+      next[item.name] = enabledStocks.includes(item.name) ? item.defaultAllocation : 0;
+    });
+    setAllocations(next);
+    setTimeout(() => normalizeAllocations(), 0);
+  };
+
+  const toggleStock = (stockName) => {
+    const isEnabled = enabledStocks.includes(stockName);
+
+    if (isEnabled && enabledStocks.length === 1) return;
+
+    if (isEnabled) {
+      const nextEnabled = enabledStocks.filter((name) => name !== stockName);
+      const nextAllocations = { ...allocations, [stockName]: 0 };
+      setEnabledStocks(nextEnabled);
+      setAllocations(nextAllocations);
+      if (selectedStock === stockName) setSelectedStock(nextEnabled[0]);
+      return;
+    }
+
+    const stock = STOCK_LIBRARY.find((item) => item.name === stockName);
+    const nextEnabled = [...enabledStocks, stockName];
+    setEnabledStocks(nextEnabled);
+    setSelectedStock(stockName);
+    setAllocations((prev) => ({
+      ...prev,
+      [stockName]: stock?.defaultAllocation ?? 10,
+    }));
+  };
+
+  const equalWeight = () => {
+    if (portfolio.length === 0) return;
+    const next = { ...allocations };
+    const base = Math.floor(100 / portfolio.length);
+    let remainder = 100 - base * portfolio.length;
+
+    portfolio.forEach((item) => {
+      next[item.name] = base + (remainder > 0 ? 1 : 0);
+      remainder -= 1;
+    });
+
+    setAllocations(next);
   };
 
   return (
@@ -180,21 +274,63 @@ export default function PortfolioVisualization() {
           <SummaryCard
             label="Weighted Portfolio Growth"
             value={`${weightedAnnualGrowth.toFixed(1)}% / year`}
-            note="Calculated from each stock allocation"
+            note="Calculated from active stocks"
           />
         </section>
 
         <section className="grid md:grid-cols-3 gap-5">
           <SummaryCard label="Total Invested" value={`฿${totalInvested.toLocaleString()}`} note="Your own capital" />
-          <SummaryCard label="Projected Value" value={`฿${projectedValue.toLocaleString()}`} note={`Weighted average from portfolio growth rates`} />
+          <SummaryCard label="Projected Value" value={`฿${projectedValue.toLocaleString()}`} note="Weighted average from portfolio growth rates" />
           <SummaryCard label="Projected Gain" value={`฿${projectedGain.toLocaleString()}`} note="Growth estimate only" />
         </section>
 
         <section className="rounded-[2rem] border border-white/10 bg-white/[0.045] p-6 md:p-8 shadow-2xl backdrop-blur-xl">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
             <div>
+              <h2 className="text-2xl font-bold">Stock Universe</h2>
+              <p className="text-zinc-500 text-sm mt-1">Turn stocks on/off. Active stocks will be included in the 100% portfolio allocation.</p>
+            </div>
+            <span className="rounded-full bg-white/10 px-4 py-2 text-sm text-zinc-300">
+              Active: {enabledStocks.length} stocks
+            </span>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {STOCK_LIBRARY.map((stock) => {
+              const isEnabled = enabledStocks.includes(stock.name);
+              return (
+                <button
+                  key={stock.name}
+                  onClick={() => toggleStock(stock.name)}
+                  className={`text-left rounded-2xl border p-4 transition-all hover:-translate-y-0.5 ${
+                    isEnabled
+                      ? 'border-white/40 bg-white/[0.08]'
+                      : 'border-white/10 bg-zinc-950/50 opacity-55'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className={`h-9 w-9 rounded-xl bg-gradient-to-br ${stock.gradient}`} />
+                      <div>
+                        <p className="font-bold text-lg">{stock.name}</p>
+                        <p className="text-xs text-zinc-500">{stock.description}</p>
+                      </div>
+                    </div>
+                    <span className={`text-xs rounded-full px-2 py-1 ${isEnabled ? 'bg-green-500/20 text-green-300' : 'bg-zinc-700 text-zinc-400'}`}>
+                      {isEnabled ? 'ON' : 'OFF'}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="rounded-[2rem] border border-white/10 bg-white/[0.045] p-6 md:p-8 shadow-2xl backdrop-blur-xl">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+            <div>
               <h2 className="text-2xl font-bold">Allocation Controls</h2>
-              <p className="text-zinc-500 text-sm mt-1">Adjust each position. Keep the total at 100% for a full allocation.</p>
+              <p className="text-zinc-500 text-sm mt-1">Adjust allocation and growth rate for each active stock.</p>
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
@@ -203,6 +339,9 @@ export default function PortfolioVisualization() {
               </span>
               <button onClick={normalizeAllocations} className="rounded-full bg-white/10 px-4 py-2 text-sm hover:bg-white/20 transition">
                 Normalize to 100%
+              </button>
+              <button onClick={equalWeight} className="rounded-full bg-white/10 px-4 py-2 text-sm hover:bg-white/20 transition">
+                Equal Weight
               </button>
               <button onClick={resetAllocations} className="rounded-full bg-white/10 px-4 py-2 text-sm hover:bg-white/20 transition">
                 Reset
@@ -244,14 +383,14 @@ export default function PortfolioVisualization() {
                   <div>
                     <div className="flex items-center justify-between mb-2 text-sm text-zinc-400">
                       <span>Expected Growth</span>
-                      <span>{growthRates[item.name]}% / year</span>
+                      <span>{item.growth}% / year</span>
                     </div>
                     <input
                       type="range"
                       min="0"
                       max="40"
                       step="1"
-                      value={growthRates[item.name]}
+                      value={item.growth}
                       onChange={(e) => updateGrowthRate(item.name, Number(e.target.value))}
                       className="w-full accent-emerald-500 cursor-pointer"
                     />
@@ -321,40 +460,42 @@ export default function PortfolioVisualization() {
           </div>
         </section>
 
-        <section className="grid md:grid-cols-2 gap-6">
-          <div className="rounded-[2rem] border border-white/10 bg-white/[0.045] p-7 backdrop-blur-xl">
-            <div className="flex items-center gap-3 mb-5">
-              <div className={`h-12 w-12 rounded-2xl bg-gradient-to-br ${selected.gradient}`} />
-              <div>
-                <p className="text-zinc-500 text-sm">Selected Position</p>
-                <h2 className="text-3xl font-bold">{selected.name}</h2>
+        {selected && (
+          <section className="grid md:grid-cols-2 gap-6">
+            <div className="rounded-[2rem] border border-white/10 bg-white/[0.045] p-7 backdrop-blur-xl">
+              <div className="flex items-center gap-3 mb-5">
+                <div className={`h-12 w-12 rounded-2xl bg-gradient-to-br ${selected.gradient}`} />
+                <div>
+                  <p className="text-zinc-500 text-sm">Selected Position</p>
+                  <h2 className="text-3xl font-bold">{selected.name}</h2>
+                </div>
+              </div>
+              <p className="text-zinc-400 mb-4">{selected.description}</p>
+              <p className="text-zinc-100 leading-relaxed text-lg">{selected.thesis}</p>
+            </div>
+
+            <div className="rounded-[2rem] border border-white/10 bg-white/[0.045] p-7 backdrop-blur-xl">
+              <h2 className="text-2xl font-bold mb-6">Risk Profile</h2>
+              <div className="space-y-5">
+                {[
+                  ['Growth', Math.min(100, Math.round(weightedAnnualGrowth * 5)), 'from-emerald-400 to-green-600'],
+                  ['Stability', Math.max(20, 100 - Math.round(weightedAnnualGrowth * 3)), 'from-sky-400 to-blue-600'],
+                  ['Volatility', Math.min(100, 40 + Math.round(weightedAnnualGrowth * 2)), 'from-amber-400 to-orange-600'],
+                ].map(([label, value, gradient]) => (
+                  <div key={label}>
+                    <div className="flex justify-between text-sm mb-2 text-zinc-400">
+                      <span>{label}</span>
+                      <span>{value}%</span>
+                    </div>
+                    <div className="h-4 rounded-full bg-zinc-950/90 border border-white/10 overflow-hidden p-1">
+                      <div className={`h-full rounded-full bg-gradient-to-r ${gradient}`} style={{ width: `${value}%` }} />
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-            <p className="text-zinc-400 mb-4">{selected.description}</p>
-            <p className="text-zinc-100 leading-relaxed text-lg">{selected.thesis}</p>
-          </div>
-
-          <div className="rounded-[2rem] border border-white/10 bg-white/[0.045] p-7 backdrop-blur-xl">
-            <h2 className="text-2xl font-bold mb-6">Risk Profile</h2>
-            <div className="space-y-5">
-              {[
-                ['Growth', 85, 'from-emerald-400 to-green-600'],
-                ['Stability', 55, 'from-sky-400 to-blue-600'],
-                ['Volatility', 70, 'from-amber-400 to-orange-600'],
-              ].map(([label, value, gradient]) => (
-                <div key={label}>
-                  <div className="flex justify-between text-sm mb-2 text-zinc-400">
-                    <span>{label}</span>
-                    <span>{value}%</span>
-                  </div>
-                  <div className="h-4 rounded-full bg-zinc-950/90 border border-white/10 overflow-hidden p-1">
-                    <div className={`h-full rounded-full bg-gradient-to-r ${gradient}`} style={{ width: `${value}%` }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+          </section>
+        )}
       </main>
     </div>
   );
